@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="AppInstalacionBPM" basedir="." default="printAllTargets" >
+	<property file="properties.properties"/>
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	    <classpath>
+	      <pathelement location="${lib}/antcontrib.jar"/>
+	    </classpath>
+	</taskdef>
+	<!-- Global Properties -->
+	<property name="ear_complete_path" value="${jboss_home}/server/${jboss_context}/deploy" ></property>
+	<property name="ear_app_path" value="./ear-app/${app_name}" ></property>
+	<property name="tmp_dir" value="${jboss_home}/server/${jboss_context}/tmp" ></property>
+	<property name="data_dir" value="${jboss_home}/server/${jboss_context}/data" ></property>
+	<property name="work_dir" value="${jboss_home}/server/${jboss_context}/work" ></property>
+	<tstamp>
+		<format property="today" pattern="yyyy-MM-dd.HH.mm.S"/>
+	</tstamp>
+
+	<!-- Check if the file exists to backup it. -->
+	<target name="check-existence-old-app">
+	    <available file="${ear_complete_path}/${app_name}" type="dir" property="ear_present"/>
+			<if>
+			   	<equals arg1="${ear_present}" arg2="true" />
+			    <then>
+			    	<echo>Directory found to backup.</echo>
+			    	<property name="is_dep_directory" value="true"/>
+			    </then>
+			    <else>
+			    	<available file="${ear_complete_path}/${app_name}" type="file" property="ear_present"/>
+			    	<if>
+			    		<equals arg1="${ear_present}" arg2="true" />
+			    		<then>
+			    			<echo>File found to backup.</echo>
+			    		</then>
+					    <else>
+					    	<echo>File or directory '${ear_complete_path}/${app_name}' not found.</echo>
+					    	<echo>Skipped step.</echo>
+					    </else>
+			    	</if>
+				</else>
+			</if>
+	</target>
+	
+	<!-- Check if the temporary files exists. -->
+	<target name="check-existence-tmp" if="${delete_tmp}" >
+	    <available file="${tmp_dir}" type="dir" property="tmp_present"/>
+	</target>
+	<target name="check-existence-data" if="${delete_data}" >
+	    <available file="${data_dir}" type="dir" property="data_present"/>
+	</target>
+	<target name="check-existence-work" if="${delete_work}" >
+	    <available file="${work_dir}" type="dir" property="work_present"/>
+	</target>
+	
+	<!-- Check if the ear of the new app exist to copy it to the deploy folder. -->
+	<target name="check-existence-new-app">
+	    <available file="${ear_app_path}" type="dir" property="ear_app_present"/>
+			<if>
+			   	<equals arg1="${ear_app_present}" arg2="true" />
+			    <then>
+			    	<echo>Directory found to copy.</echo>
+			    	<property name="is_directory" value="true"/>
+			    </then>
+			    <else>
+			    	<available file="${ear_app_path}" type="file" property="ear_app_present"/>
+				    	<if>
+				    		<equals arg1="${ear_app_present}" arg2="true" />
+				    		<then>
+				    			<echo>File found to copy.</echo>
+				    		</then>
+							 <else>
+							  	<echo>File or directory '${ear_app_path}' not found.</echo>
+							   	<echo>Skipped step.</echo>
+							 </else>
+				    	</if>
+				</else>
+			</if>
+	</target>
+	
+	<!-- Backup the ear under the deploy folder."-->
+	<target name="backup" depends="check-existence-old-app" if="ear_present">
+		<echo message="Backup the previous EAR."/>
+		<property name="destiny_path" value="${ear_backup}/${app_name}-${today}.zip" ></property>
+		<echo message="Backup up from ${ear_complete_path}/${app_name} to ${destiny_path}" />
+		<if>
+			<equals arg1="${is_dep_directory}" arg2="true" />
+			<then>
+			    <zip destfile="${destiny_path}" 
+			       update="false">
+			    	 <fileset dir="${ear_complete_path}"> 
+			    	    <include name="${app_name}/**" /> 
+			    	 </fileset> 
+			    </zip>
+			</then>
+			<else>
+			    <zip destfile="${destiny_path}" 
+			       update="false">
+			    	 <fileset dir="${ear_complete_path}"> 
+			    	    <include name="${app_name}" /> 
+			    	 </fileset> 
+			    </zip>
+			</else>
+		</if>
+		<antcall target="generate-back-checksum"/>
+	</target>
+	
+	<!-- Eliminate the ear under the deploy folder. -->
+	<target name="cleandeploy" depends="check-existence-old-app" if="ear_present">
+		<echo message="Deleting EAR file from ${ear_complete_path}"/>
+		<if>
+			<equals arg1="${is_dep_directory}" arg2="true" />
+			<then>
+				<delete dir="${ear_complete_path}/${app_name}"/>	
+			</then>
+			<else>
+				<delete file="${ear_complete_path}/${app_name}"/>
+			</else>
+		</if>
+		<echo message="File or directory deleted completely." ></echo>
+	</target>
+
+	<!-- Delete the temporary folders -->
+	<target name="cleantemp" depends="check-existence-tmp" if="tmp_present" >
+		<echo message="Deleting temporary files"/>
+		<delete dir="${tmp_dir}"/>
+		<echo message="File tmp completely." ></echo>
+	</target>
+	<target name="cleandatas" depends="check-existence-data" if="data_present" >
+		<echo message="Deleting temporary files"/>
+		<delete dir="${data_dir}"/>
+		<echo message="File data completely." ></echo>
+	</target>
+	<target name="cleanworks" depends="check-existence-work" if="work_present" >
+		<echo message="Deleting temporary files"/>
+		<delete dir="${work_dir}"/>
+		<echo message="File work completely." ></echo>
+	</target>
+	<target name="cleantemps">
+		<echo message="Start to delete temporary folders." ></echo>
+		<antcall target="cleanworks"></antcall>
+		<antcall target="cleandatas"></antcall>
+		<antcall target="cleantemp"></antcall>
+		<echo message="Done deleting temporary files.." ></echo>
+	</target>
+	
+	<!-- Copy the new ear from the app folder to the deploy folder. -->
+	<target name="copyear" depends="check-existence-new-app" if="ear_app_present">
+		<echo message="Copying EAR file from ${ear_app_path}"/>
+		<if>
+		   	<equals arg1="${is_directory}" arg2="true" />
+			<then>
+				<copy todir="${jboss_home}/server/${jboss_context}/deploy/${app_name}">
+					<fileset dir="${ear_app_path}"/>
+				</copy>
+				<echo message="Files copied completly." />
+				<echo file="deployversion">DeployerVersion:${version}</echo>
+				<copy todir="${jboss_home}/server/${jboss_context}/deploy/${app_name}/">
+				      <fileset file="deployversion"/>
+				</copy>
+				<delete file="deployversion"/>
+			</then>
+		 	<else>
+		 		<copy todir="${jboss_home}/server/${jboss_context}/deploy">
+		 			<fileset file="${ear_app_path}"/>
+		 		</copy>
+		 	</else>
+		</if>
+	</target>
+	
+	<!-- Display the current version of the ant file. -->
+	<target name="version">
+		<echo message="Deployer version: ${version}" />
+	</target>
+	
+	<!-- Generate checksum of the zipped file. Only work for files not directory. -->
+	<target name="generate-back-checksum">
+		<checksum  file="${destiny_path}" forceOverwrite="yes"/>		
+		<echo>Checksum for the zip generated.</echo>
+	</target>
+
+	<!-- Stops back-end EJB container -->
+	<target name="stop-jboss" description="Stops back-end EJB container" >
+		<echo>OS: ${os.name}</echo>
+		<if>
+		   	<equals arg1="${os.name}" arg2="${linux_os}" />
+		    <then>
+		    	<var name="shut" value="shutdown.sh" />
+		    </then>
+		    <else>
+		    	<var name="shut" value="shutdown.bat" />
+			</else>
+		</if>
+		<echo>File: ${shut}</echo>
+	    <exec executable="${jboss_home}/bin/${shut}" spawn="true">
+	        <arg line="-S" />
+	    </exec>
+	    <echo>+-----------------------------------------+</echo>
+	    <echo>Signal sent to jboss for shutdown...</echo>
+	    <echo>+-----------------------------------------+</echo>
+	</target>
+	
+	<!-- Default target, it prints all the available targets. -->
+	<target name="printAllTargets">
+		<echo>--------------------------------------------------------------</echo>
+		<echo>Available targets:</echo>
+		<echo>install		- Install the app (backup,cleandeploy,cleantemps,copyear)</echo>
+		<echo>backup 		- Backup the current ear</echo>
+		<echo>cleandeploy 	- Clean the ear from the deploy folder.</echo>
+		<echo>cleantemps		- Delete the temporary folders of jboss.</echo>
+		<echo>copyear		- Copy the ear from the source folder, to deploy.</echo>
+		<echo>version  		- Print the version of the App deployer.</echo>
+		<echo>stop-jboss		- Stop the jboss server.</echo>
+		<echo></echo>
+		<echo>Example of usage "ant install"</echo>
+		<echo>--------------------------------------------------------------</echo>
+		<antcall target="version"></antcall>
+	</target>
+	
+	<!-- Main target to do all the tasks. -->
+	<target name="install">
+		<antcall target="backup"></antcall>
+		<antcall target="cleandeploy"></antcall>
+		<antcall target="cleantemps"></antcall>
+		<antcall target="copyear"></antcall>
+		<echo message="Done"/>
+		<echo message="Check the log console for omited operations."/>
+	</target>
+</project>
