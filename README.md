@@ -5,9 +5,7 @@ A custom ant script to deploy, backup and clean temps and projects from a server
 
 
 #What we need?
-Only an ant distribution to run the script.
-And ear app
-A JBoss AS
+Only an ant distribution to run the script, an ear app and a JBoss AS.
 
 ##Available targets:
 ```ant
