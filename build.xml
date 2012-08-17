@@ -8,7 +8,7 @@
 	</taskdef>
 	<!-- Global Properties -->
 	<property name="ear_complete_path" value="${jboss_home}/server/${jboss_context}/deploy" ></property>
-	<property name="ear_app_path" value="./ear-app/${app_name}" ></property>
+	<property name="ear_app_path" value="${ear_app}/${app_name}"></property>
 	<property name="tmp_dir" value="${jboss_home}/server/${jboss_context}/tmp" ></property>
 	<property name="data_dir" value="${jboss_home}/server/${jboss_context}/data" ></property>
 	<property name="work_dir" value="${jboss_home}/server/${jboss_context}/work" ></property>
@@ -140,7 +140,7 @@
 		<antcall target="cleanworks"></antcall>
 		<antcall target="cleandatas"></antcall>
 		<antcall target="cleantemp"></antcall>
-		<echo message="Done deleting temporary files.." ></echo>
+		<echo message="Done deleting temporary files..." ></echo>
 	</target>
 	
 	<!-- Copy the new ear from the app folder to the deploy folder. -->
