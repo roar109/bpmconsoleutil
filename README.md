@@ -18,3 +18,7 @@ Only an ant distribution to run the script, an ear app and a JBoss AS.
 ```
 
 This ant archive use only individual and simple tasks like copy, delete and ant-zip. No extra stuff to complicate the life.
+
+Libraries used
+--------------
+* [Ant Contrib](http://ant-contrib.sourceforge.net/)
