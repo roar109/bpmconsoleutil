@@ -4,10 +4,11 @@ bpmconsoleutil
 A custom ant script to deploy, backup and clean temps and projects from a server. We use Jboss AS at the moment. You can run the complete script with "install" or individual targets.
 
 
-#What we need?
+What we need?
 Only an ant distribution to run the script, an ear app and a JBoss AS.
 
-##Available targets:
+Available targets:
+--------------
 ```ant
 	install		Install the ear(backup, cleandeploy, cleantemps, copyear).
 	backup		Backup the existent ear.
