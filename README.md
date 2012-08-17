@@ -1,7 +1,7 @@
 bpmconsoleutil
 ==============
 
-A custom ant script to deploy, backup and clean temps and projects from a server. We use Jboss AS for the moment. You can run the complete script with "install" or individual targets.
+A custom ant script to deploy, backup and clean temps and projects from a server. We use Jboss AS at the moment. You can run the complete script with "install" or individual targets.
 
 
 #What we need?
@@ -17,4 +17,4 @@ Only an ant distribution to run the script, an ear app and a JBoss AS.
 	stop-jboss	Stop the jboss as.
 ```
 
-This ant archive use only individual and simple task like copy, delete and use the ant-zip task. No extra stuff to complicate the life.
+This ant archive use only individual and simple tasks like copy, delete and ant-zip. No extra stuff to complicate the life.
