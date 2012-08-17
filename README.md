@@ -9,12 +9,12 @@ Only an ant distribution to run the script, an ear app and a JBoss AS.
 
 ##Available targets:
 ```ant
-	install		Install the ear(backup, cleandeploy, cleantemps, copyear)
-	backup		Backup the existent ear
-	cleandeploy	Delete the ear from the jobs folder
-	cleantemps	Delete work, temp and data from jboss
-	copyear		Copy the ear to the deploy folder
-	stop-jboss	Stop the jboss
+	install		Install the ear(backup, cleandeploy, cleantemps, copyear).
+	backup		Backup the existent ear.
+	cleandeploy	Delete the ear from the jobs folder.
+	cleantemps	Delete work, temp and data from jobs.
+	copyear		Copy the ear to the deploy folder.
+	stop-jboss	Stop the jboss as.
 ```
 
-This use only individual and simple task like copy, delete and use the ant-zip task. No extra stuff to complicate the life.
+This ant archive use only individual and simple task like copy, delete and use the ant-zip task. No extra stuff to complicate the life.
