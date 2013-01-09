@@ -16,6 +16,23 @@
 		<format property="today" pattern="yyyy-MM-dd.HH.mm.S"/>
 	</tstamp>
 
+	<!-- Unzip a file that is passed as parameter to the ant task. -->
+	<target name="unzip">
+		<condition property="file.set" else="false">
+		      <isset property="file"/>
+		</condition>
+		<if>
+			<equals arg1="${file.set}" arg2="true" />
+			<then>
+				<unzip src="${file}" dest="${ear_app}"></unzip>
+		    </then>
+			<else>
+				<echo>Propertiy 'file' is not specified.</echo>
+				<echo>Use 'ant unzip -Dfile=somefile.zip'</echo>
+			</else>
+		</if>
+	</target>
+	
 	<!-- Check if the file exists to backup it. -->
 	<target name="check-existence-old-app">
 	    <available file="${ear_complete_path}/${app_name}" type="dir" property="ear_present"/>
@@ -210,6 +227,7 @@
 		<echo>copyear		- Copy the ear from the source folder, to deploy.</echo>
 		<echo>version  		- Print the version of the App deployer.</echo>
 		<echo>stop-jboss		- Stop the jboss server.</echo>
+		<echo>unzip		- Unzip a zip file passing as parameter: -Dfile=somefile.zip.</echo>
 		<echo></echo>
 		<echo>Example of usage "ant install"</echo>
 		<echo>--------------------------------------------------------------</echo>
